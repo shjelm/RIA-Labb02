@@ -13,7 +13,7 @@ var CardsList = React.createClass({
   	}
 });
 
-var DeckCalculator = React.createClass({
+var DeckCalculatorAllCards = React.createClass({
 	mixins: [ReactFireMixin],
 	getInitialState: function() {
 		this.cards = [];
@@ -31,8 +31,8 @@ var DeckCalculator = React.createClass({
     	this.firebaseRefUser.off();
     },
     handleOnAdd: function(event){
-    	console.log(event.props.cards[0].name);
-    	this.firebaseRefUser["userCards"].push({
+    	console.log("Adding card: " + event.props.cards[0].name);
+    	this.firebaseRefs["userCards"].push({
         	name: event.props.cards[0].name,
         	url: event.props.cards[0].url
       	});
@@ -47,4 +47,14 @@ var DeckCalculator = React.createClass({
   }
 });
 
-React.render(<DeckCalculator />, document.getElementById("allCardsDiv"));
+
+var DeckCalculator = React.createClass({
+	render : function (){
+	return 
+		(
+			<DeckCalculatorAllCards />
+		);	
+	}
+});
+
+React.render(<DeckCalculatorAllCards />, document.getElementById("content"));

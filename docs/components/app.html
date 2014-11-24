@@ -45,7 +45,7 @@
   	}
 });
 
-<span class="hljs-keyword">var</span> DeckCalculator = React.createClass({
+<span class="hljs-keyword">var</span> DeckCalculatorAllCards = React.createClass({
 	mixins: [ReactFireMixin],
 	getInitialState: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
 		<span class="hljs-keyword">this</span>.cards = [];
@@ -63,8 +63,8 @@
     	<span class="hljs-keyword">this</span>.firebaseRefUser.off();
     },
     handleOnAdd: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(event)</span></span>{
-    	<span class="hljs-built_in">console</span>.log(event.props.cards[<span class="hljs-number">0</span>].name);
-    	<span class="hljs-keyword">this</span>.firebaseRefUser[<span class="hljs-string">"userCards"</span>].push({
+    	<span class="hljs-built_in">console</span>.log(<span class="hljs-string">"Adding card: "</span> + event.props.cards[<span class="hljs-number">0</span>].name);
+    	<span class="hljs-keyword">this</span>.firebaseRefs[<span class="hljs-string">"userCards"</span>].push({
         	name: event.props.cards[<span class="hljs-number">0</span>].name,
         	url: event.props.cards[<span class="hljs-number">0</span>].url
       	});
@@ -79,7 +79,17 @@
   }
 });
 
-React.render(<span class="hljs-tag">&lt;<span class="hljs-title">DeckCalculator</span> /&gt;</span>, document.getElementById("allCardsDiv"));
+
+var DeckCalculator = React.createClass({
+	render : function (){
+	return 
+		(
+			<span class="hljs-tag">&lt;<span class="hljs-title">DeckCalculatorAllCards</span> /&gt;</span>
+		);	
+	}
+});
+
+React.render(<span class="hljs-tag">&lt;<span class="hljs-title">DeckCalculatorAllCards</span> /&gt;</span>, document.getElementById("content"));
 </span></pre></div></div>
             
         </li>

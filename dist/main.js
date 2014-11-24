@@ -18482,7 +18482,7 @@ var CardsList = React.createClass({displayName: 'CardsList',
   	}
 });
 
-var DeckCalculator = React.createClass({displayName: 'DeckCalculator',
+var DeckCalculatorAllCards = React.createClass({displayName: 'DeckCalculatorAllCards',
 	mixins: [ReactFireMixin],
 	getInitialState: function() {
 		this.cards = [];
@@ -18500,8 +18500,8 @@ var DeckCalculator = React.createClass({displayName: 'DeckCalculator',
     	this.firebaseRefUser.off();
     },
     handleOnAdd: function(event){
-    	console.log(event.props.cards[0].name);
-    	this.firebaseRefUser["userCards"].push({
+    	console.log("Adding card: " + event.props.cards[0].name);
+    	this.firebaseRefs["userCards"].push({
         	name: event.props.cards[0].name,
         	url: event.props.cards[0].url
       	});
@@ -18516,7 +18516,17 @@ var DeckCalculator = React.createClass({displayName: 'DeckCalculator',
   }
 });
 
-React.render(React.createElement(DeckCalculator, null), document.getElementById("allCardsDiv"));
+
+var DeckCalculator = React.createClass({displayName: 'DeckCalculator',
+	render : function (){
+	return 
+		(
+			React.createElement(DeckCalculatorAllCards, null)
+		);	
+	}
+});
+
+React.render(React.createElement(DeckCalculatorAllCards, null), document.getElementById("content"));
 },{"firebase":1,"react":148}],150:[function(require,module,exports){
 /** @jsx React.DOM */
 
