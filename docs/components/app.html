@@ -35,61 +35,206 @@
 <span class="hljs-keyword">var</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">"react"</span>);
 <span class="hljs-keyword">var</span> Firebase = <span class="hljs-built_in">require</span>(<span class="hljs-string">"firebase"</span>);
 
-<span class="hljs-keyword">var</span> CardsList = React.createClass({
+<span class="hljs-keyword">var</span> CardsListAllCard = React.createClass({
 	render: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
     <span class="hljs-keyword">var</span> createItem = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(card, index)</span> </span>{
-      	<span class="hljs-keyword">return</span> <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">id</span>=<span class="hljs-value">'card'</span> <span class="hljs-attribute">key</span>=<span class="hljs-value">{</span> <span class="hljs-attribute">index</span> }&gt;</span><span class="hljs-tag">&lt;<span class="hljs-title">img</span> <span class="hljs-attribute">onClick</span>=<span class="hljs-value">{this.props.onClick.bind(null,</span> <span class="hljs-attribute">this</span>)} <span class="hljs-attribute">src</span>=<span class="hljs-value">{</span> <span class="hljs-attribute">card.url</span> }/&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>;</span>
+      	<span class="hljs-keyword">return</span> <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">className</span>=<span class="hljs-value">'card'</span> <span class="hljs-attribute">key</span>=<span class="hljs-value">{</span> <span class="hljs-attribute">index</span> }&gt;</span><span class="hljs-tag">&lt;<span class="hljs-title">img</span> <span class="hljs-attribute">onClick</span>=<span class="hljs-value">{this.props.onClick.bind(null,</span> <span class="hljs-attribute">card</span>)} <span class="hljs-attribute">src</span>=<span class="hljs-value">{</span> <span class="hljs-attribute">card.url</span> }/&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>;</span>
     }.bind(<span class="hljs-keyword">this</span>);
-    <span class="hljs-keyword">return</span> <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">id</span>=<span class="hljs-value">'cards'</span>&gt;</span>{ this.props.cards.map(createItem) }<span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>;</span>
 
+    <span class="hljs-keyword">return</span> <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">className</span>=<span class="hljs-value">'cards'</span>&gt;</span>{ this.props.cards.map(createItem) }<span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>;</span>
   	}
 });
 
 <span class="hljs-keyword">var</span> DeckCalculatorAllCards = React.createClass({
-	mixins: [ReactFireMixin],
 	getInitialState: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
 		<span class="hljs-keyword">this</span>.cards = [];
 		<span class="hljs-keyword">this</span>.userCards = [];
-		<span class="hljs-keyword">return</span> {cards: [], name:<span class="hljs-string">"default"</span>, url:<span class="hljs-string">"defaultURL"</span>};
+		<span class="hljs-keyword">return</span> {cards: [], key:<span class="hljs-string">"null"</span>, name:<span class="hljs-string">"default"</span>, url:<span class="hljs-string">"defaultURL"</span>};
   	},
   	componentWillMount: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
-		<span class="hljs-keyword">var</span> firebaseRefAllCards = <span class="hljs-keyword">new</span> Firebase(<span class="hljs-string">"https://sizzling-torch-8926.firebaseio.com/all_Cards/"</span>);
-		<span class="hljs-keyword">var</span> firebaseRefUser = <span class="hljs-keyword">new</span> Firebase(<span class="hljs-string">"https://sizzling-torch-8926.firebaseio.com/users/guest/cards/"</span>);
-	    <span class="hljs-keyword">this</span>.bindAsArray(firebaseRefAllCards, <span class="hljs-string">"cards"</span>);
-	    <span class="hljs-keyword">this</span>.bindAsArray(firebaseRefUser, <span class="hljs-string">"userCards"</span>);
+  		<span class="hljs-keyword">this</span>.firebaseRefAllCards = <span class="hljs-keyword">new</span> Firebase(<span class="hljs-string">"https://sizzling-torch-8926.firebaseio.com/all_Cards/"</span>);
+  		<span class="hljs-keyword">this</span>.firebaseRefUserCards = <span class="hljs-keyword">new</span> Firebase(<span class="hljs-string">"https://sizzling-torch-8926.firebaseio.com/users/guest/cards"</span>);
+
+  		<span class="hljs-keyword">this</span>.firebaseRefAllCards.on(<span class="hljs-string">"child_added"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(dataSnapshot)</span> </span>{
+  			<span class="hljs-keyword">var</span> card = {
+	            key: dataSnapshot.name(),
+	            name: dataSnapshot.val().name,
+	            url: dataSnapshot.val().url
+        	};
+
+   			<span class="hljs-keyword">this</span>.cards.push(
+   				card
+   			);
+    		<span class="hljs-keyword">this</span>.setState({
+      			cards: <span class="hljs-keyword">this</span>.cards
+    		});
+  		}.bind(<span class="hljs-keyword">this</span>));
 	},
 	componentWillUnmount: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
     	<span class="hljs-keyword">this</span>.firebaseRefAllCards.off();
     	<span class="hljs-keyword">this</span>.firebaseRefUser.off();
     },
-    handleOnAdd: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(event)</span></span>{
-    	<span class="hljs-built_in">console</span>.log(<span class="hljs-string">"Adding card: "</span> + event.props.cards[<span class="hljs-number">0</span>].name);
-    	<span class="hljs-keyword">this</span>.firebaseRefs[<span class="hljs-string">"userCards"</span>].push({
-        	name: event.props.cards[<span class="hljs-number">0</span>].name,
-        	url: event.props.cards[<span class="hljs-number">0</span>].url
-      	});
+    handleOnAdd: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(card)</span></span>{
+    	
+    	<span class="hljs-keyword">this</span>.firebaseRefUserCards.push({
+	        name: card.name,
+	        url: card.url
+  		});
+
+  		<span class="hljs-keyword">this</span>.setState({
+      		cards: <span class="hljs-keyword">this</span>.cards
+    	});
     },
   	render: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
     <span class="hljs-keyword">return</span> (
-      <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-title">div</span>&gt;</span>
+      <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">className</span>=<span class="hljs-value">'div'</span>&gt;</span>
       	<span class="hljs-tag">&lt;<span class="hljs-title">h3</span>&gt;</span>All Cards<span class="hljs-tag">&lt;/<span class="hljs-title">h3</span>&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-title">CardsList</span> <span class="hljs-attribute">onClick</span>=<span class="hljs-value">{</span> <span class="hljs-attribute">this.handleOnAdd</span> } <span class="hljs-attribute">cards</span>=<span class="hljs-value">{</span> <span class="hljs-attribute">this.state.cards</span> } /&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">CardsListAllCard</span> <span class="hljs-attribute">onClick</span>=<span class="hljs-value">{</span> <span class="hljs-attribute">this.handleOnAdd</span> } <span class="hljs-attribute">cards</span>=<span class="hljs-value">{</span> <span class="hljs-attribute">this.state.cards</span> } /&gt;</span>
       <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
     );
   }
 });
 
+var CardsListUserCard = React.createClass({
+	render: function() {
+    var createItem = function(card, index) {
+      	return <span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">className</span>=<span class="hljs-value">'card'</span> <span class="hljs-attribute">key</span>=<span class="hljs-value">{</span> <span class="hljs-attribute">index</span> }&gt;</span><span class="hljs-tag">&lt;<span class="hljs-title">img</span> <span class="hljs-attribute">onClick</span>=<span class="hljs-value">{this.props.onClick.bind(null,</span> <span class="hljs-attribute">this</span>)} <span class="hljs-attribute">src</span>=<span class="hljs-value">{</span> <span class="hljs-attribute">card.url</span> }/&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>;</span>
+    }.bind(<span class="hljs-keyword">this</span>);
+
+    <span class="hljs-keyword">return</span> <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">className</span>=<span class="hljs-value">'cards'</span>&gt;</span>{ this.props.userCards.map(createItem) }<span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>;</span>
+  	}
+});
+
+<span class="hljs-keyword">var</span> DeckCalculatorUserCards = React.createClass({
+	getInitialState: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+		<span class="hljs-keyword">this</span>.userCards = [];
+		<span class="hljs-keyword">return</span> {userCards: [], key:<span class="hljs-string">"null"</span>, name:<span class="hljs-string">"default"</span>, url:<span class="hljs-string">"defaultURL"</span>};
+  	},
+  	componentWillMount: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+  		<span class="hljs-keyword">this</span>.firebaseRefUserCards = <span class="hljs-keyword">new</span> Firebase(<span class="hljs-string">"https://sizzling-torch-8926.firebaseio.com/users/guest/cards"</span>);
+
+  		<span class="hljs-keyword">this</span>.firebaseRefUserCards.on(<span class="hljs-string">"child_added"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(dataSnapshot)</span> </span>{
+  			<span class="hljs-keyword">var</span> userCards = {
+	            key: dataSnapshot.name(),
+	            name: dataSnapshot.val().name,
+	            url: dataSnapshot.val().url
+        	};
+
+   			<span class="hljs-keyword">this</span>.userCards.push(
+   				userCards
+   			);
+    		<span class="hljs-keyword">this</span>.setState({
+      			userCards: <span class="hljs-keyword">this</span>.userCards
+    		});
+  		}.bind(<span class="hljs-keyword">this</span>));
+	},
+	componentWillUnmount: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+    	<span class="hljs-keyword">this</span>.firebaseRefUser.off();
+    },
+    handleOnRemove: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(event)</span></span>{
+    	<span class="hljs-keyword">var</span> clickedCard = event.props.userCards[<span class="hljs-number">0</span>];
+    	
+    	<span class="hljs-keyword">for</span> (index = <span class="hljs-number">0</span>; index &lt; <span class="hljs-keyword">this</span>.userCards.length; ++index) {
+    		<span class="hljs-keyword">if</span>(<span class="hljs-keyword">this</span>.userCards[index].key == clickedCard.key){
+    			<span class="hljs-keyword">this</span>.userCards.splice( index, <span class="hljs-number">1</span>);
+    			<span class="hljs-keyword">this</span>.setState({
+      				userCards: <span class="hljs-keyword">this</span>.userCards
+    			});
+    			index = <span class="hljs-keyword">this</span>.userCards.length;
+    		}
+		}
+
+    	<span class="hljs-keyword">this</span>.firebaseRefUserCards.child(clickedCard.key).remove();
+
+  		<span class="hljs-keyword">this</span>.setState({
+      		userCards: <span class="hljs-keyword">this</span>.userCards
+    	});
+    },
+  	render: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+    <span class="hljs-keyword">return</span> (
+      <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">className</span>=<span class="hljs-value">'div'</span>&gt;</span>
+      	<span class="hljs-tag">&lt;<span class="hljs-title">h3</span>&gt;</span>User Cards<span class="hljs-tag">&lt;/<span class="hljs-title">h3</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">CardsListUserCard</span> <span class="hljs-attribute">onClick</span>=<span class="hljs-value">{</span> <span class="hljs-attribute">this.handleOnRemove</span> } <span class="hljs-attribute">userCards</span>=<span class="hljs-value">{</span> <span class="hljs-attribute">this.state.userCards</span> } /&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+    );
+  }
+});
+
+var UpdateCards = React.createClass({
+	getInitialState: function() {
+    	this.items = [];
+    	return {items: [], name: "", url:""};
+  	},
+  	componentWillMount: function() {
+		this.firebaseRef = new Firebase("https://sizzling-torch-8926.firebaseio.com/all_Cards/");
+	},
+	componentWillUnmount: function() {
+    	this.firebaseRef.off();
+    },
+	handleSubmit: function(e) {
+    	e.preventDefault();
+    	if( this.state.name.toString().length &gt; 0 &amp;&amp;
+    		this.state.url.toString().length &gt; 0){
+
+			var imageUrl = this.state.url.toString();
+			imageExists(imageUrl, function(exists) {
+			  	if(exists){			  		
+					this.firebaseRef.push({
+        				name: this.state.name,
+        				url: this.state.url
+		  			});
+		  	
+		  			this.setState({name: "", url:""});
+
+		  			document.getElementById("submitError").innerHTML = "";
+			  	}
+			  	else{
+			  		document.getElementById("submitError").innerHTML = "Image Not Found!";
+			  	}
+			}.bind(this));
+    	}   	
+    },
+    nameOnChange: function(e) {
+	    this.setState({name: e.target.value});
+    },
+    URLOnChange: function(e) {
+	    this.setState({url: e.target.value});
+    },
+	render: function(){
+		return (
+			<span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">className</span>=<span class="hljs-value">'div'</span>&gt;</span>
+				<span class="hljs-tag">&lt;<span class="hljs-title">form</span> <span class="hljs-attribute">onSubmit</span>=<span class="hljs-value">{</span> <span class="hljs-attribute">this.handleSubmit</span> }&gt;</span>
+					<span class="hljs-tag">&lt;<span class="hljs-title">p</span> <span class="hljs-attribute">id</span>=<span class="hljs-value">'submitError'</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">p</span>&gt;</span>
+					<span class="hljs-tag">&lt;<span class="hljs-title">p</span>&gt;</span>Add a card to db<span class="hljs-tag">&lt;/<span class="hljs-title">p</span>&gt;</span>
+          			Name:<span class="hljs-tag">&lt;<span class="hljs-title">input</span> <span class="hljs-attribute">onChange</span>=<span class="hljs-value">{</span> <span class="hljs-attribute">this.nameOnChange</span> } <span class="hljs-attribute">value</span>=<span class="hljs-value">{</span> <span class="hljs-attribute">this.state.name</span> } /&gt;</span><span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span>
+          			URL:<span class="hljs-tag">&lt;<span class="hljs-title">input</span> <span class="hljs-attribute">onChange</span>=<span class="hljs-value">{</span> <span class="hljs-attribute">this.URLOnChange</span> } <span class="hljs-attribute">value</span>=<span class="hljs-value">{</span> <span class="hljs-attribute">this.state.url</span> } /&gt;</span><span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span>
+         			<span class="hljs-tag">&lt;<span class="hljs-title">button</span>&gt;</span>Add Card<span class="hljs-tag">&lt;/<span class="hljs-title">button</span>&gt;</span>
+        		<span class="hljs-tag">&lt;/<span class="hljs-title">form</span>&gt;</span>
+			<span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span> 
+		);
+	}
+});
 
 var DeckCalculator = React.createClass({
 	render : function (){
-	return 
-		(
+	return (
+		<span class="hljs-tag">&lt;<span class="hljs-title">div</span>&gt;</span>
+			<span class="hljs-tag">&lt;<span class="hljs-title">DeckCalculatorUserCards</span> /&gt;</span>
 			<span class="hljs-tag">&lt;<span class="hljs-title">DeckCalculatorAllCards</span> /&gt;</span>
+			<span class="hljs-tag">&lt;<span class="hljs-title">UpdateCards</span> /&gt;</span>
+		<span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
 		);	
 	}
 });
 
-React.render(<span class="hljs-tag">&lt;<span class="hljs-title">DeckCalculatorAllCards</span> /&gt;</span>, document.getElementById("content"));
+function imageExists(url, callback) {
+  var img = new Image();
+  img.onload = function() { callback(true); };
+  img.onerror = function() { callback(false); };
+  img.src = url;
+}
+
+React.render(<span class="hljs-tag">&lt;<span class="hljs-title">DeckCalculator</span> /&gt;</span>, document.getElementById("content"));
 </span></pre></div></div>
             
         </li>

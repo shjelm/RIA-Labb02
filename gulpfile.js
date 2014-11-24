@@ -16,6 +16,11 @@ gulp.task('copyindex', function() {
       .pipe(gulp.dest('dist'));
 });
 
+gulp.task('copycss', function() {
+    gulp.src('src/style/*')
+      .pipe(gulp.dest('dist'));
+});
+
 gulp.task('docsindex', function(){
   folderToc('docs', {
     name : 'index.html',
@@ -35,4 +40,4 @@ gulp.task('builddocs', function(){
 gulp.task('docs',['builddocs','docsindex']);
 
 // Build gulp
-gulp.task('default',['docs', 'browserify', 'copyindex']);
+gulp.task('default',['docs', 'browserify', 'copyindex', 'copycss']);

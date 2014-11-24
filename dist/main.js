@@ -18472,61 +18472,206 @@ module.exports = require('./lib/React');
 var React = require("react");
 var Firebase = require("firebase");
 
-var CardsList = React.createClass({displayName: 'CardsList',
+var CardsListAllCard = React.createClass({displayName: 'CardsListAllCard',
 	render: function() {
     var createItem = function(card, index) {
-      	return React.createElement("div", {id: "card", key: index }, React.createElement("img", {onClick: this.props.onClick.bind(null, this), src:  card.url}));
+      	return React.createElement("div", {className: "card", key: index }, React.createElement("img", {onClick: this.props.onClick.bind(null, card), src:  card.url}));
     }.bind(this);
-    return React.createElement("div", {id: "cards"},  this.props.cards.map(createItem) );
 
+    return React.createElement("div", {className: "cards"},  this.props.cards.map(createItem) );
   	}
 });
 
 var DeckCalculatorAllCards = React.createClass({displayName: 'DeckCalculatorAllCards',
-	mixins: [ReactFireMixin],
 	getInitialState: function() {
 		this.cards = [];
 		this.userCards = [];
-		return {cards: [], name:"default", url:"defaultURL"};
+		return {cards: [], key:"null", name:"default", url:"defaultURL"};
   	},
   	componentWillMount: function() {
-		var firebaseRefAllCards = new Firebase("https://sizzling-torch-8926.firebaseio.com/all_Cards/");
-		var firebaseRefUser = new Firebase("https://sizzling-torch-8926.firebaseio.com/users/guest/cards/");
-	    this.bindAsArray(firebaseRefAllCards, "cards");
-	    this.bindAsArray(firebaseRefUser, "userCards");
+  		this.firebaseRefAllCards = new Firebase("https://sizzling-torch-8926.firebaseio.com/all_Cards/");
+  		this.firebaseRefUserCards = new Firebase("https://sizzling-torch-8926.firebaseio.com/users/guest/cards");
+
+  		this.firebaseRefAllCards.on("child_added", function(dataSnapshot) {
+  			var card = {
+	            key: dataSnapshot.name(),
+	            name: dataSnapshot.val().name,
+	            url: dataSnapshot.val().url
+        	};
+
+   			this.cards.push(
+   				card
+   			);
+    		this.setState({
+      			cards: this.cards
+    		});
+  		}.bind(this));
 	},
 	componentWillUnmount: function() {
     	this.firebaseRefAllCards.off();
     	this.firebaseRefUser.off();
     },
-    handleOnAdd: function(event){
-    	console.log("Adding card: " + event.props.cards[0].name);
-    	this.firebaseRefs["userCards"].push({
-        	name: event.props.cards[0].name,
-        	url: event.props.cards[0].url
-      	});
+    handleOnAdd: function(card){
+    	
+    	this.firebaseRefUserCards.push({
+	        name: card.name,
+	        url: card.url
+  		});
+
+  		this.setState({
+      		cards: this.cards
+    	});
     },
   	render: function() {
     return (
-      React.createElement("div", null, 
+      React.createElement("div", {className: "div"}, 
       	React.createElement("h3", null, "All Cards"), 
-        React.createElement(CardsList, {onClick:  this.handleOnAdd, cards:  this.state.cards})
+        React.createElement(CardsListAllCard, {onClick:  this.handleOnAdd, cards:  this.state.cards})
       )
     );
   }
 });
 
+var CardsListUserCard = React.createClass({displayName: 'CardsListUserCard',
+	render: function() {
+    var createItem = function(card, index) {
+      	return React.createElement("div", {className: "card", key: index }, React.createElement("img", {onClick: this.props.onClick.bind(null, this), src:  card.url}));
+    }.bind(this);
+
+    return React.createElement("div", {className: "cards"},  this.props.userCards.map(createItem) );
+  	}
+});
+
+var DeckCalculatorUserCards = React.createClass({displayName: 'DeckCalculatorUserCards',
+	getInitialState: function() {
+		this.userCards = [];
+		return {userCards: [], key:"null", name:"default", url:"defaultURL"};
+  	},
+  	componentWillMount: function() {
+  		this.firebaseRefUserCards = new Firebase("https://sizzling-torch-8926.firebaseio.com/users/guest/cards");
+
+  		this.firebaseRefUserCards.on("child_added", function(dataSnapshot) {
+  			var userCards = {
+	            key: dataSnapshot.name(),
+	            name: dataSnapshot.val().name,
+	            url: dataSnapshot.val().url
+        	};
+
+   			this.userCards.push(
+   				userCards
+   			);
+    		this.setState({
+      			userCards: this.userCards
+    		});
+  		}.bind(this));
+	},
+	componentWillUnmount: function() {
+    	this.firebaseRefUser.off();
+    },
+    handleOnRemove: function(event){
+    	var clickedCard = event.props.userCards[0];
+    	
+    	for (index = 0; index < this.userCards.length; ++index) {
+    		if(this.userCards[index].key == clickedCard.key){
+    			this.userCards.splice( index, 1);
+    			this.setState({
+      				userCards: this.userCards
+    			});
+    			index = this.userCards.length;
+    		}
+		}
+
+    	this.firebaseRefUserCards.child(clickedCard.key).remove();
+
+  		this.setState({
+      		userCards: this.userCards
+    	});
+    },
+  	render: function() {
+    return (
+      React.createElement("div", {className: "div"}, 
+      	React.createElement("h3", null, "User Cards"), 
+        React.createElement(CardsListUserCard, {onClick:  this.handleOnRemove, userCards:  this.state.userCards})
+      )
+    );
+  }
+});
+
+var UpdateCards = React.createClass({displayName: 'UpdateCards',
+	getInitialState: function() {
+    	this.items = [];
+    	return {items: [], name: "", url:""};
+  	},
+  	componentWillMount: function() {
+		this.firebaseRef = new Firebase("https://sizzling-torch-8926.firebaseio.com/all_Cards/");
+	},
+	componentWillUnmount: function() {
+    	this.firebaseRef.off();
+    },
+	handleSubmit: function(e) {
+    	e.preventDefault();
+    	if( this.state.name.toString().length > 0 &&
+    		this.state.url.toString().length > 0){
+
+			var imageUrl = this.state.url.toString();
+			imageExists(imageUrl, function(exists) {
+			  	if(exists){			  		
+					this.firebaseRef.push({
+        				name: this.state.name,
+        				url: this.state.url
+		  			});
+		  	
+		  			this.setState({name: "", url:""});
+
+		  			document.getElementById("submitError").innerHTML = "";
+			  	}
+			  	else{
+			  		document.getElementById("submitError").innerHTML = "Image Not Found!";
+			  	}
+			}.bind(this));
+    	}   	
+    },
+    nameOnChange: function(e) {
+	    this.setState({name: e.target.value});
+    },
+    URLOnChange: function(e) {
+	    this.setState({url: e.target.value});
+    },
+	render: function(){
+		return (
+			React.createElement("div", {className: "div"}, 
+				React.createElement("form", {onSubmit:  this.handleSubmit}, 
+					React.createElement("p", {id: "submitError"}), 
+					React.createElement("p", null, "Add a card to db"), 
+          			"Name:", React.createElement("input", {onChange:  this.nameOnChange, value:  this.state.name}), React.createElement("br", null), 
+          			"URL:", React.createElement("input", {onChange:  this.URLOnChange, value:  this.state.url}), React.createElement("br", null), 
+         			React.createElement("button", null, "Add Card")
+        		)
+			) 
+		);
+	}
+});
 
 var DeckCalculator = React.createClass({displayName: 'DeckCalculator',
 	render : function (){
-	return 
-		(
-			React.createElement(DeckCalculatorAllCards, null)
+	return (
+		React.createElement("div", null, 
+			React.createElement(DeckCalculatorUserCards, null), 
+			React.createElement(DeckCalculatorAllCards, null), 
+			React.createElement(UpdateCards, null)
+		)
 		);	
 	}
 });
 
-React.render(React.createElement(DeckCalculatorAllCards, null), document.getElementById("content"));
+function imageExists(url, callback) {
+  var img = new Image();
+  img.onload = function() { callback(true); };
+  img.onerror = function() { callback(false); };
+  img.src = url;
+}
+
+React.render(React.createElement(DeckCalculator, null), document.getElementById("content"));
 },{"firebase":1,"react":148}],150:[function(require,module,exports){
 /** @jsx React.DOM */
 
