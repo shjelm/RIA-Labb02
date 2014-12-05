@@ -33650,7 +33650,7 @@ var UpdateCardsHTML = React.createClass({displayName: 'UpdateCardsHTML',
 	render : function (){
 	return (
 		React.createElement("div", null, 
-			React.createElement(UpdateCards, {url: "admins.json"})
+			React.createElement(UpdateCards, {url: "Admins.json"})
 		)
 		);	
 	}
