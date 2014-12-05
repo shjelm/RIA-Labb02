@@ -86,13 +86,38 @@
 		<span class="hljs-keyword">this</span>.setState({
       		user:user
     	});
-    	<span class="hljs-keyword">if</span>(user != <span class="hljs-literal">null</span>){
-			<span class="hljs-keyword">this</span>.firebaseRefUserCards = <span class="hljs-keyword">new</span> Firebase(<span class="hljs-string">"https://sizzling-torch-8926.firebaseio.com/users/"</span> + user.github.username +<span class="hljs-string">"/cards"</span>);
+    	<span class="hljs-built_in">console</span>.log(<span class="hljs-string">"user change"</span>);
+    	<span class="hljs-keyword">this</span>.updateUserPrefs();
+	},
+	updateUserPrefs: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span></span>{
+		<span class="hljs-keyword">if</span>(<span class="hljs-keyword">this</span>.state.user != <span class="hljs-literal">null</span>){
+			<span class="hljs-keyword">this</span>.firebaseRefUserCards = <span class="hljs-keyword">new</span> Firebase(<span class="hljs-string">"https://sizzling-torch-8926.firebaseio.com/users/"</span> + <span class="hljs-keyword">this</span>.state.user.github.username +<span class="hljs-string">"/cards"</span>);
+			<span class="hljs-keyword">this</span>.setState({
+  				userName:<span class="hljs-keyword">this</span>.state.user.github.username
+  			});
   		}
   		<span class="hljs-keyword">else</span>{
   			<span class="hljs-keyword">this</span>.firebaseRefUserCards = <span class="hljs-keyword">new</span> Firebase(<span class="hljs-string">"https://sizzling-torch-8926.firebaseio.com/users/guest/cards"</span>);
+  			<span class="hljs-keyword">this</span>.setState({
+  				userName:<span class="hljs-keyword">this</span>.defaultUserName
+  			});
   		}
-	},
+  		<span class="hljs-keyword">this</span>.userCards = [];
+  		<span class="hljs-keyword">this</span>.firebaseRefUserCards.on(<span class="hljs-string">"child_added"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(dataSnapshot)</span> </span>{
+  			<span class="hljs-keyword">var</span> userCards = {
+	            key: dataSnapshot.name(),
+	            name: dataSnapshot.val().name,
+	            url: dataSnapshot.val().url
+        	};
+
+   			<span class="hljs-keyword">this</span>.userCards.push(
+   				userCards
+   			);
+    		<span class="hljs-keyword">this</span>.setState({
+      			userCards: <span class="hljs-keyword">this</span>.userCards
+    		});
+  		}.bind(<span class="hljs-keyword">this</span>));
+    },
 	componentWillUnmount: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
     	<span class="hljs-keyword">this</span>.firebaseRefAllCards.off();
     	<span class="hljs-keyword">this</span>.firebaseRefUserCards.off();
@@ -129,19 +154,44 @@ var CardsListUserCard = React.createClass({
 });
 
 <span class="hljs-keyword">var</span> DeckCalculatorUserCards = React.createClass({
+	mixins: [Reflux.ListenerMixin],
 	getInitialState: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
 		<span class="hljs-keyword">this</span>.userCards = [];
+		<span class="hljs-keyword">this</span>.defaultUserName = <span class="hljs-string">"Guest"</span>;
 		<span class="hljs-keyword">return</span> {userCards: [], key:<span class="hljs-string">"null"</span>, name:<span class="hljs-string">"default"</span>, url:<span class="hljs-string">"defaultURL"</span>};
   	},
   	componentWillMount: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
-  		<span class="hljs-keyword">if</span>(<span class="hljs-keyword">this</span>.state.user != <span class="hljs-literal">null</span>){
+  		<span class="hljs-keyword">this</span>.updateUserPrefs();
+
+  		<span class="hljs-keyword">this</span>.listenTo(Actions.login, <span class="hljs-keyword">this</span>.onUserChange);
+  		<span class="hljs-keyword">this</span>.listenTo(Actions.logout, <span class="hljs-keyword">this</span>.onUserChange);
+	},
+	onUserChange: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(user)</span></span>{
+		<span class="hljs-keyword">this</span>.setState({
+      		user:user
+    	});
+    	<span class="hljs-built_in">console</span>.log(<span class="hljs-string">"user change"</span>);
+    	<span class="hljs-keyword">this</span>.updateUserPrefs();
+	},
+	componentWillUnmount: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+    	<span class="hljs-keyword">this</span>.firebaseRefUserCards.off();
+    },
+    updateUserPrefs: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span></span>{
+		<span class="hljs-keyword">if</span>(<span class="hljs-keyword">this</span>.state.user != <span class="hljs-literal">null</span>){
+			<span class="hljs-built_in">console</span>.log(<span class="hljs-string">"Setting to github user"</span>);
 			<span class="hljs-keyword">this</span>.firebaseRefUserCards = <span class="hljs-keyword">new</span> Firebase(<span class="hljs-string">"https://sizzling-torch-8926.firebaseio.com/users/"</span> + <span class="hljs-keyword">this</span>.state.user.github.username +<span class="hljs-string">"/cards"</span>);
+			<span class="hljs-keyword">this</span>.setState({
+  				userName:<span class="hljs-keyword">this</span>.state.user.github.username
+  			});
   		}
   		<span class="hljs-keyword">else</span>{
-  			<span class="hljs-built_in">console</span>.log(<span class="hljs-string">"user is null"</span>);
+  			<span class="hljs-built_in">console</span>.log(<span class="hljs-string">"Setting to Guest user"</span>);
   			<span class="hljs-keyword">this</span>.firebaseRefUserCards = <span class="hljs-keyword">new</span> Firebase(<span class="hljs-string">"https://sizzling-torch-8926.firebaseio.com/users/guest/cards"</span>);
+  			<span class="hljs-keyword">this</span>.setState({
+  				userName:<span class="hljs-keyword">this</span>.defaultUserName
+  			});
   		}
-
+  		<span class="hljs-keyword">this</span>.userCards = [];
   		<span class="hljs-keyword">this</span>.firebaseRefUserCards.on(<span class="hljs-string">"child_added"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(dataSnapshot)</span> </span>{
   			<span class="hljs-keyword">var</span> userCards = {
 	            key: dataSnapshot.name(),
@@ -156,25 +206,6 @@ var CardsListUserCard = React.createClass({
       			userCards: <span class="hljs-keyword">this</span>.userCards
     		});
   		}.bind(<span class="hljs-keyword">this</span>));
-
-
-  		<span class="hljs-keyword">this</span>.listenTo(Actions.login, <span class="hljs-keyword">this</span>.onUserChange);
-  		<span class="hljs-keyword">this</span>.listenTo(Actions.logout, <span class="hljs-keyword">this</span>.onUserChange);
-	},
-	onUserChange: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(user)</span></span>{
-		<span class="hljs-keyword">this</span>.setState({
-      		user:user
-    	});
-    	<span class="hljs-built_in">console</span>.log(<span class="hljs-string">"user change"</span>);
-    	<span class="hljs-keyword">if</span>(user != <span class="hljs-literal">null</span>){
-			<span class="hljs-keyword">this</span>.firebaseRefUserCards = <span class="hljs-keyword">new</span> Firebase(<span class="hljs-string">"https://sizzling-torch-8926.firebaseio.com/users/"</span> + user.github.username +<span class="hljs-string">"/cards"</span>);
-  		}
-  		<span class="hljs-keyword">else</span>{
-  			<span class="hljs-keyword">this</span>.firebaseRefUserCards = <span class="hljs-keyword">new</span> Firebase(<span class="hljs-string">"https://sizzling-torch-8926.firebaseio.com/users/guest/cards"</span>);
-  		}
-	},
-	componentWillUnmount: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
-    	<span class="hljs-keyword">this</span>.firebaseRefUserCards.off();
     },
     handleOnRemove: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(card)</span></span>{
     	
@@ -197,13 +228,12 @@ var CardsListUserCard = React.createClass({
   	render: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
     <span class="hljs-keyword">return</span> (
       <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">className</span>=<span class="hljs-value">'div'</span>&gt;</span>
-      	<span class="hljs-tag">&lt;<span class="hljs-title">h3</span>&gt;</span>User Cards<span class="hljs-tag">&lt;/<span class="hljs-title">h3</span>&gt;</span>
+      	<span class="hljs-tag">&lt;<span class="hljs-title">h3</span>&gt;</span>{ this.state.userName } Cards<span class="hljs-tag">&lt;/<span class="hljs-title">h3</span>&gt;</span>
         <span class="hljs-tag">&lt;<span class="hljs-title">CardsListUserCard</span> <span class="hljs-attribute">onClick</span>=<span class="hljs-value">{</span> <span class="hljs-attribute">this.handleOnRemove</span> } <span class="hljs-attribute">userCards</span>=<span class="hljs-value">{</span> <span class="hljs-attribute">this.state.userCards</span> } /&gt;</span>
       <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
     );
   }
 });
-
 
 var DeckBuilder = React.createClass({
 	render : function (){
