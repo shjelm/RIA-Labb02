@@ -54,13 +54,38 @@ var DeckCalculatorAllCards = React.createClass({
 		this.setState({
       		user:user
     	});
-    	if(user != null){
-			this.firebaseRefUserCards = new Firebase("https://sizzling-torch-8926.firebaseio.com/users/" + user.github.username +"/cards");
+    	console.log("user change");
+    	this.updateUserPrefs();
+	},
+	updateUserPrefs: function(){
+		if(this.state.user != null){
+			this.firebaseRefUserCards = new Firebase("https://sizzling-torch-8926.firebaseio.com/users/" + this.state.user.github.username +"/cards");
+			this.setState({
+  				userName:this.state.user.github.username
+  			});
   		}
   		else{
   			this.firebaseRefUserCards = new Firebase("https://sizzling-torch-8926.firebaseio.com/users/guest/cards");
+  			this.setState({
+  				userName:this.defaultUserName
+  			});
   		}
-	},
+  		this.userCards = [];
+  		this.firebaseRefUserCards.on("child_added", function(dataSnapshot) {
+  			var userCards = {
+	            key: dataSnapshot.name(),
+	            name: dataSnapshot.val().name,
+	            url: dataSnapshot.val().url
+        	};
+
+   			this.userCards.push(
+   				userCards
+   			);
+    		this.setState({
+      			userCards: this.userCards
+    		});
+  		}.bind(this));
+    },
 	componentWillUnmount: function() {
     	this.firebaseRefAllCards.off();
     	this.firebaseRefUserCards.off();
@@ -97,19 +122,44 @@ var CardsListUserCard = React.createClass({
 });
 
 var DeckCalculatorUserCards = React.createClass({
+	mixins: [Reflux.ListenerMixin],
 	getInitialState: function() {
 		this.userCards = [];
+		this.defaultUserName = "Guest";
 		return {userCards: [], key:"null", name:"default", url:"defaultURL"};
   	},
   	componentWillMount: function() {
-  		if(this.state.user != null){
+  		this.updateUserPrefs();
+
+  		this.listenTo(Actions.login, this.onUserChange);
+  		this.listenTo(Actions.logout, this.onUserChange);
+	},
+	onUserChange: function(user){
+		this.setState({
+      		user:user
+    	});
+    	console.log("user change");
+    	this.updateUserPrefs();
+	},
+	componentWillUnmount: function() {
+    	this.firebaseRefUserCards.off();
+    },
+    updateUserPrefs: function(){
+		if(this.state.user != null){
+			console.log("Setting to github user");
 			this.firebaseRefUserCards = new Firebase("https://sizzling-torch-8926.firebaseio.com/users/" + this.state.user.github.username +"/cards");
+			this.setState({
+  				userName:this.state.user.github.username
+  			});
   		}
   		else{
-  			console.log("user is null");
+  			console.log("Setting to Guest user");
   			this.firebaseRefUserCards = new Firebase("https://sizzling-torch-8926.firebaseio.com/users/guest/cards");
+  			this.setState({
+  				userName:this.defaultUserName
+  			});
   		}
-
+  		this.userCards = [];
   		this.firebaseRefUserCards.on("child_added", function(dataSnapshot) {
   			var userCards = {
 	            key: dataSnapshot.name(),
@@ -124,25 +174,6 @@ var DeckCalculatorUserCards = React.createClass({
       			userCards: this.userCards
     		});
   		}.bind(this));
-
-
-  		this.listenTo(Actions.login, this.onUserChange);
-  		this.listenTo(Actions.logout, this.onUserChange);
-	},
-	onUserChange: function(user){
-		this.setState({
-      		user:user
-    	});
-    	console.log("user change");
-    	if(user != null){
-			this.firebaseRefUserCards = new Firebase("https://sizzling-torch-8926.firebaseio.com/users/" + user.github.username +"/cards");
-  		}
-  		else{
-  			this.firebaseRefUserCards = new Firebase("https://sizzling-torch-8926.firebaseio.com/users/guest/cards");
-  		}
-	},
-	componentWillUnmount: function() {
-    	this.firebaseRefUserCards.off();
     },
     handleOnRemove: function(card){
     	
@@ -165,13 +196,12 @@ var DeckCalculatorUserCards = React.createClass({
   	render: function() {
     return (
       <div className='div'>
-      	<h3>User Cards</h3>
+      	<h3>{ this.state.userName } Cards</h3>
         <CardsListUserCard onClick={ this.handleOnRemove } userCards={ this.state.userCards } />
       </div>
     );
   }
 });
-
 
 var DeckBuilder = React.createClass({
 	render : function (){

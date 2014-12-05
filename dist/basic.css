@@ -5,8 +5,15 @@ body{
 .card{
 	overflow:auto;
 	float:left;
+	height:395px;
+	width:284px;
 }
 
 .div{
 	clear: both;
+}
+
+.Login{
+	color:blue;
+	text-decoration: underline;
 }

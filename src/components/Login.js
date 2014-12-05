@@ -43,7 +43,7 @@ var Login = React.createClass({
   		return(
   			<div id='div'>
 			<h3>Login</h3>
-        	<a href='#' onClick={ this.handleOnLogin }>Login</a>
+        	<p className='Login' onClick={ this.handleOnLogin }>Login</p>
         	</div>
         );
      }
@@ -51,7 +51,7 @@ var Login = React.createClass({
      	return(
      		<div id='div'>
      		<h3>Welcome { authData.github.username }</h3>
-     		<a href='#' onClick={ this.handleOnLogout }>Logout</a>
+     		<p className='Login' onClick={ this.handleOnLogout }>Logout</p>
      		</div>
      	);
      }
