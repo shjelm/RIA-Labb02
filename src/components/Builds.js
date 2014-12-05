@@ -2,7 +2,7 @@
 
 var React = require("react");
 var Firebase = require("firebase");
-var Actions = require("./actions");
+var Actions = require("./Actions");
 var Reflux = require('reflux');
 
 var BuildsListAllBuilds = React.createClass({

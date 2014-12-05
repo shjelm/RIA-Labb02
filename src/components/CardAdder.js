@@ -3,7 +3,7 @@
 var React = require("react");
 var Firebase = require("firebase");
 var $ = require("jquery");
-var Actions = require("./actions");
+var Actions = require("./Actions");
 var Reflux = require('reflux');
 
 var UpdateCards = React.createClass({
@@ -117,7 +117,7 @@ var UpdateCardsHTML = React.createClass({
 	render : function (){
 	return (
 		<div>
-			<UpdateCards url="admins.json"/>
+			<UpdateCards url="Admins.json"/>
 		</div>
 		);	
 	}
