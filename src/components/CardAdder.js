@@ -117,7 +117,7 @@ var UpdateCardsHTML = React.createClass({
 	render : function (){
 	return (
 		<div>
-			<UpdateCards url="admins.json"/>
+			<UpdateCards url="Admins.json"/>
 		</div>
 		);	
 	}
