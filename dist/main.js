@@ -33433,6 +33433,13 @@ exports.throwIf = function(val,msg){
 };
 
 },{"eventemitter3":193}],209:[function(require,module,exports){
+var Reflux = require('reflux');
+
+module.exports = Reflux.createActions([
+	"login",
+	"logout"
+]);
+},{"reflux":204}],210:[function(require,module,exports){
 /** @jsx React.DOM */
 
 var React = require("react");
@@ -33523,13 +33530,13 @@ var Builds = React.createClass({displayName: 'Builds',
 });
 
 module.exports = Builds;
-},{"./actions":216,"firebase":1,"react":192,"reflux":204}],210:[function(require,module,exports){
+},{"./actions":217,"firebase":1,"react":192,"reflux":204}],211:[function(require,module,exports){
 /** @jsx React.DOM */
 
 var React = require("react");
 var Firebase = require("firebase");
 var $ = require("jquery");
-var Actions = require("./actions");
+var Actions = require("./Actions");
 var Reflux = require('reflux');
 
 var UpdateCards = React.createClass({displayName: 'UpdateCards',
@@ -33650,12 +33657,12 @@ var UpdateCardsHTML = React.createClass({displayName: 'UpdateCardsHTML',
 });
 
 module.exports = UpdateCardsHTML;
-},{"./actions":216,"firebase":1,"jquery":6,"react":192,"reflux":204}],211:[function(require,module,exports){
+},{"./Actions":209,"firebase":1,"jquery":6,"react":192,"reflux":204}],212:[function(require,module,exports){
 /** @jsx React.DOM */
 
 var React = require("react");
 var Firebase = require("firebase");
-var Actions = require("./actions");
+var Actions = require("./Actions");
 var Reflux = require('reflux');
 
 var CardsListAllCard = React.createClass({displayName: 'CardsListAllCard',
@@ -33868,12 +33875,12 @@ var DeckBuilder = React.createClass({displayName: 'DeckBuilder',
 });
 
 module.exports = DeckBuilder;
-},{"./actions":216,"firebase":1,"react":192,"reflux":204}],212:[function(require,module,exports){
+},{"./Actions":209,"firebase":1,"react":192,"reflux":204}],213:[function(require,module,exports){
 /** @jsx React.DOM */
 
 var React = require("react");
 var Firebase = require("firebase");
-var Actions = require("./actions");
+var Actions = require("./Actions");
 
 var Login = React.createClass({displayName: 'Login',
 	componentWillMount: function() {
@@ -33930,7 +33937,7 @@ var Login = React.createClass({displayName: 'Login',
 });
 
 module.exports = Login;
-},{"./actions":216,"firebase":1,"react":192}],213:[function(require,module,exports){
+},{"./Actions":209,"firebase":1,"react":192}],214:[function(require,module,exports){
 /** @jsx React.DOM */
 
 var React = require("react");
@@ -33947,7 +33954,7 @@ var NotFound  = React.createClass({displayName: 'NotFound',
 }); 
 
 module.exports = NotFound;
-},{"react":192}],214:[function(require,module,exports){
+},{"react":192}],215:[function(require,module,exports){
 /** @jsx React.DOM */
 
 var React = require("react");
@@ -34002,7 +34009,7 @@ var Status = React.createClass({displayName: 'Status',
 });
 
 module.exports = Status;
-},{"react":192,"reflux":204}],215:[function(require,module,exports){
+},{"react":192,"reflux":204}],216:[function(require,module,exports){
 /** @jsx React.DOM */
 
 var React = require("react");
@@ -34010,14 +34017,9 @@ var React = require("react");
 var SUTFILE = require("./ReFlux.js");
 
 module.exports = SUTFILE;
-},{"./ReFlux.js":214,"react":192}],216:[function(require,module,exports){
-var Reflux = require('reflux');
-
-module.exports = Reflux.createActions([
-	"login",
-	"logout"
-]);
-},{"reflux":204}],217:[function(require,module,exports){
+},{"./ReFlux.js":215,"react":192}],217:[function(require,module,exports){
+module.exports=require(209)
+},{"reflux":204}],218:[function(require,module,exports){
 /** @jsx React.DOM */
 
 /** Other */
@@ -34072,7 +34074,7 @@ Router.run(routes, function (Handler) {
   React.render(React.createElement(Handler, null), document.getElementById("content"));
 });
 
-},{"./Builds.js":209,"./CardAdder.js":210,"./DeckBuilder.js":211,"./Login.js":212,"./NotFound.js":213,"./SUT.js":215,"react":192,"react-router":15}],218:[function(require,module,exports){
+},{"./Builds.js":210,"./CardAdder.js":211,"./DeckBuilder.js":212,"./Login.js":213,"./NotFound.js":214,"./SUT.js":216,"react":192,"react-router":15}],219:[function(require,module,exports){
 /** @jsx React.DOM */
 
 var App = require('./components/app'),
@@ -34081,4 +34083,4 @@ var App = require('./components/app'),
 React.renderComponent(
   App,
   document.getElementById('main'));
-},{"./components/app":217,"react":192}]},{},[218])
+},{"./components/app":218,"react":192}]},{},[219])
