@@ -46,3 +46,10 @@ gulp.task('docs',['builddocs','docsindex']);
 
 // Build gulp
 gulp.task('default',['docs', 'browserify', 'copyindex', 'copycss', 'copyjson']);
+
+gulp.task('watch', function () {
+  gulp.watch('src/**/*.js', ['browserify']);
+  gulp.watch('src/index.html', ['copyindex']);
+  gulp.watch('src/style/*', ['copycss']);
+  gulp.watch('src/components/*.json', ['copyjson']);
+});
