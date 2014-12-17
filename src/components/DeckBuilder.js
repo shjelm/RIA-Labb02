@@ -17,13 +17,12 @@ var CardsListAllCard = React.createClass({
 });
 
 var DeckCalculatorAllCards = React.createClass({
-	mixins: [Reflux.ListenerMixin],
 	getInitialState: function() {
 		this.cards = [];
 		//this.userCards = [];
 		return {cards: [], key:"null", name:"default", url:"defaultURL"};
   	},
-  	componentWillMount: function() {
+  componentWillMount: function() {
   		this.firebaseRefAllCards = new Firebase("https://sizzling-torch-8926.firebaseio.com/all_Cards/");
 
       /*
@@ -90,7 +89,7 @@ var DeckCalculatorAllCards = React.createClass({
   },*/
 	componentWillUnmount: function() {
     	this.firebaseRefAllCards.off();
-    	this.firebaseRefUserCards.off();
+    	//this.firebaseRefUserCards.off();
     },
   handleOnAdd: function(card){
     	
@@ -120,7 +119,7 @@ var CardsListUserCard = React.createClass({
     var createItem = function(card, index) {
       	return <div className='card' key={ index }><img onClick={this.props.onClick.bind(null, card)} src={ card.url }/></div>;
     }.bind(this);
-
+    console.log("ersre");
     return <div className='cards'>{ this.props.userCards.map(createItem) }</div>;
   	}
 });
@@ -128,7 +127,6 @@ var CardsListUserCard = React.createClass({
 var DeckCalculatorUserCards = React.createClass({
   mixins: [Reflux.connect(CardStore,"userCards")],
 	getInitialState: function() {
-		this.userCards = [];
 		this.defaultUserName = "Guest";
 		return {userCards: [], key:"null", name:"default", url:"defaultURL"};
   	},
@@ -164,6 +162,8 @@ var DeckCalculatorUserCards = React.createClass({
     },*/
   },
   render: function() {
+    console.log("state");
+    console.log(this.state.userCards);
     return (
       <div className='div'>
       	<h3>{ this.state.userName } Cards</h3>

@@ -9,8 +9,8 @@ var User = [];
 
 var UserStore = Reflux.createStore({
   init: function(){
-    //this.listenTo(Actions.login,this.login.bind(this));
-    //this.listenTo(Actions.logout,this.logout.bind(this));
+    this.listenTo(Actions.login,this.login.bind(this));
+    this.listenTo(Actions.logout,this.logout.bind(this));
   },
   login: function(user){
     console.log(user);
@@ -23,3 +23,5 @@ var UserStore = Reflux.createStore({
     return this.User || {};
   }
 });
+
+module.exports = UserStore;
