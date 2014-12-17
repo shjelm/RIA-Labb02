@@ -41,29 +41,46 @@
 
 <span class="hljs-keyword">var</span> CardStore = Reflux.createStore({
   init: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span></span>{
-    cardRef.on(<span class="hljs-string">"value"</span>,<span class="hljs-keyword">this</span>.updateCard.bind(<span class="hljs-keyword">this</span>));
-    <span class="hljs-built_in">console</span>.log(<span class="hljs-keyword">this</span>.listenTo);
+    <span class="hljs-keyword">this</span>.cards = [];
+    cardRef.on(<span class="hljs-string">"child_added"</span>,<span class="hljs-keyword">this</span>.updateCards.bind(<span class="hljs-keyword">this</span>));
     <span class="hljs-keyword">this</span>.listenTo(Actions.addUserCard,<span class="hljs-keyword">this</span>.addCard.bind(<span class="hljs-keyword">this</span>));
     <span class="hljs-keyword">this</span>.listenTo(Actions.removeUserCard,<span class="hljs-keyword">this</span>.removeCard.bind(<span class="hljs-keyword">this</span>));
-    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"fef"</span>);
   },
   addCard: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(card)</span></span>{
     cardRef.push(card,<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(err)</span></span>{
       <span class="hljs-keyword">if</span> (err){
         <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"did not add card"</span>);
       } <span class="hljs-keyword">else</span> {
-        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"did add card: "</span> + card);
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"did add card: "</span> + card.name);
       }
     });
   },
   removeCard: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(card)</span></span>{
-    <span class="hljs-keyword">this</span>.cardRef.child(card.key).remove();
+    <span class="hljs-keyword">for</span> (index = <span class="hljs-number">0</span>; index &lt; <span class="hljs-keyword">this</span>.cards.length; ++index) {
+      <span class="hljs-keyword">if</span>(<span class="hljs-keyword">this</span>.cards[index].key == card.key){
+        <span class="hljs-keyword">this</span>.cards.splice( index, <span class="hljs-number">1</span>);
+        index = <span class="hljs-keyword">this</span>.cards.length;
+      }
+    }
+
+    cardRef.child(card.key).remove();
+    <span class="hljs-keyword">this</span>.trigger((<span class="hljs-keyword">this</span>.cards));
   },
-  updateCard: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(snapshot)</span></span>{
-    <span class="hljs-keyword">this</span>.trigger((<span class="hljs-keyword">this</span>.last = snapshot.val()||{}));
+  updateCards: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(snapshot)</span></span>{
+    <span class="hljs-keyword">var</span> card = {
+        key: snapshot.name(),
+        name: snapshot.val().name,
+        url: snapshot.val().url
+    };
+
+    <span class="hljs-keyword">this</span>.cards.push(
+      card
+    );
+
+    <span class="hljs-keyword">this</span>.trigger((<span class="hljs-keyword">this</span>.cards));
   },
   getDefaultData: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span></span>{
-    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.last || {};
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.cards || [];
   }
 });
 

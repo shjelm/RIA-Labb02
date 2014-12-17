@@ -37,37 +37,27 @@
 <span class="hljs-keyword">var</span> Actions = <span class="hljs-built_in">require</span>(<span class="hljs-string">"./Actions"</span>);
 <span class="hljs-keyword">var</span> Reflux = <span class="hljs-built_in">require</span>(<span class="hljs-string">'reflux'</span>);
 
-<span class="hljs-keyword">var</span> User = [];
+<span class="hljs-keyword">var</span> User = {};
 
 <span class="hljs-keyword">var</span> UserStore = Reflux.createStore({
-  init: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span></span>{</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-2">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-2">&#182;</a>
-              </div>
-              <p>this.listenTo(Actions.login,this.login.bind(this));
-this.listenTo(Actions.logout,this.logout.bind(this));</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>  },
+  init: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span></span>{
+    <span class="hljs-keyword">this</span>.listenTo(Actions.login,<span class="hljs-keyword">this</span>.login.bind(<span class="hljs-keyword">this</span>));
+    <span class="hljs-keyword">this</span>.listenTo(Actions.logout,<span class="hljs-keyword">this</span>.logout.bind(<span class="hljs-keyword">this</span>));
+  },
   login: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(user)</span></span>{
     <span class="hljs-built_in">console</span>.log(user);
     <span class="hljs-keyword">this</span>.User = user;
+    <span class="hljs-keyword">this</span>.trigger((<span class="hljs-keyword">this</span>.User));
   },
   logout: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span></span>{
-    <span class="hljs-keyword">this</span>.trigger((<span class="hljs-keyword">this</span>.User = {}||{}));
+    <span class="hljs-keyword">this</span>.trigger((<span class="hljs-keyword">this</span>.User));
   },
   getDefaultData: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span></span>{
     <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.User || {};
   }
-});</pre></div></div>
+});
+
+<span class="hljs-built_in">module</span>.exports = UserStore;</pre></div></div>
             
         </li>
         

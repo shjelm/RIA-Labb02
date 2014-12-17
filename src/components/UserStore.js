@@ -5,7 +5,7 @@ var Firebase = require("firebase");
 var Actions = require("./Actions");
 var Reflux = require('reflux');
 
-var User = [];
+var User = {};
 
 var UserStore = Reflux.createStore({
   init: function(){
@@ -15,9 +15,10 @@ var UserStore = Reflux.createStore({
   login: function(user){
     console.log(user);
     this.User = user;
+    this.trigger((this.User));
   },
   logout: function(){
-    this.trigger((this.User = {}||{}));
+    this.trigger((this.User));
   },
   getDefaultData: function(){
     return this.User || {};

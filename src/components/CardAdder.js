@@ -5,9 +5,10 @@ var Firebase = require("firebase");
 var $ = require("jquery");
 var Actions = require("./Actions");
 var Reflux = require('reflux');
+var UserStore = require('./UserStore');
 
 var UpdateCards = React.createClass({
-	//mixins: [Reflux.ListenerMixin],
+	mixins: [Reflux.connect(UserStore,"User")],
 	getInitialState: function() {
     	this.items = [];
     	this.admins = [];
@@ -26,18 +27,10 @@ var UpdateCards = React.createClass({
         		console.error(this.props.url, status, err.toString());
       		}.bind(this)
     	});
-
-    	//this.listenTo(Actions.login, this.onUserChange);
-  		//this.listenTo(Actions.logout, this.onUserChange);
 	},
 	componentWillUnmount: function() {
     	this.firebaseRef.off();
-    },/*
-    onUserChange: function(user){
-		this.setState({
-      		user:user
-    	});
-	},*/
+    },
 	handleSubmit: function(e) {
     	e.preventDefault();
     	if( this.state.name.toString().length > 0 &&
@@ -68,6 +61,9 @@ var UpdateCards = React.createClass({
 	    this.setState({url: e.target.value});
     },
 	render: function(){
+		console.log("current user");
+		console.log(this.state.User);
+		
 		if(isAdmin(this.state.admins, this.state.user)){
 			return(
 				 <div className='div'>

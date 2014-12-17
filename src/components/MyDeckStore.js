@@ -9,7 +9,8 @@ var cardRef = new Firebase("https://sizzling-torch-8926.firebaseio.com/users/gue
 
 var CardStore = Reflux.createStore({
   init: function(){
-    cardRef.on("value",this.updateCards.bind(this));
+    this.cards = [];
+    cardRef.on("child_added",this.updateCards.bind(this));
     this.listenTo(Actions.addUserCard,this.addCard.bind(this));
     this.listenTo(Actions.removeUserCard,this.removeCard.bind(this));
   },
@@ -23,14 +24,31 @@ var CardStore = Reflux.createStore({
     });
   },
   removeCard: function(card){
-    this.cardRef.child(card.key).remove();
+    for (index = 0; index < this.cards.length; ++index) {
+      if(this.cards[index].key == card.key){
+        this.cards.splice( index, 1);
+        index = this.cards.length;
+      }
+    }
+
+    cardRef.child(card.key).remove();
+    this.trigger((this.cards));
   },
   updateCards: function(snapshot){
-    console.log(snapshot.val());
-    this.trigger((this.cards = snapshot.val() || {}));
+    var card = {
+        key: snapshot.name(),
+        name: snapshot.val().name,
+        url: snapshot.val().url
+    };
+
+    this.cards.push(
+      card
+    );
+
+    this.trigger((this.cards));
   },
   getDefaultData: function(){
-    return this.cards || {};
+    return this.cards || [];
   }
 });
 
