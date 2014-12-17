@@ -33437,7 +33437,8 @@ var Reflux = require('reflux');
 
 module.exports = Reflux.createActions([
 	"login",
-	"logout"
+	"logout",
+	"addUserCard"
 ]);
 },{"reflux":204}],210:[function(require,module,exports){
 /** @jsx React.DOM */
@@ -33458,7 +33459,6 @@ var BuildsListAllBuilds = React.createClass({displayName: 'BuildsListAllBuilds',
 });
 
 var BuildBuilder = React.createClass({displayName: 'BuildBuilder',
-	mixins: [Reflux.ListenerMixin],
 	getInitialState: function() {
 		this.builds = [];
 		return {builds: [], key:"null", author:"null", name:"default", cards:[]};
@@ -33482,21 +33482,21 @@ var BuildBuilder = React.createClass({displayName: 'BuildBuilder',
     		});
   		}.bind(this));
 
-  		this.listenTo(Actions.login, this.onUserChange);
-  		this.listenTo(Actions.logout, this.onUserChange);
+  		//this.listenTo(Actions.login, this.onUserChange);
+  		//this.listenTo(Actions.logout, this.onUserChange);
 	},
 	componentWillUnmount: function() {
     	this.firebaseRefAllBuilds.off();
     },
 	handleOnClick: function(build){
 		console.log("Clicked: " +build);
-	},
+	},/*
 	onUserChange: function(user){
 		this.setState({
       		user:user
     	});
-	},
-  	render: function() {
+	},*/
+  render: function() {
   	if(this.state.user != null){
   		return (
       		React.createElement("div", {className: "div"}, 
@@ -33540,7 +33540,7 @@ var Actions = require("./Actions");
 var Reflux = require('reflux');
 
 var UpdateCards = React.createClass({displayName: 'UpdateCards',
-	mixins: [Reflux.ListenerMixin],
+	//mixins: [Reflux.ListenerMixin],
 	getInitialState: function() {
     	this.items = [];
     	this.admins = [];
@@ -33560,17 +33560,17 @@ var UpdateCards = React.createClass({displayName: 'UpdateCards',
       		}.bind(this)
     	});
 
-    	this.listenTo(Actions.login, this.onUserChange);
-  		this.listenTo(Actions.logout, this.onUserChange);
+    	//this.listenTo(Actions.login, this.onUserChange);
+  		//this.listenTo(Actions.logout, this.onUserChange);
 	},
 	componentWillUnmount: function() {
     	this.firebaseRef.off();
-    },
+    },/*
     onUserChange: function(user){
 		this.setState({
       		user:user
     	});
-	},
+	},*/
 	handleSubmit: function(e) {
     	e.preventDefault();
     	if( this.state.name.toString().length > 0 &&
@@ -33664,6 +33664,7 @@ var React = require("react");
 var Firebase = require("firebase");
 var Actions = require("./Actions");
 var Reflux = require('reflux');
+var CardStore = require('./MyDeckStore');
 
 var CardsListAllCard = React.createClass({displayName: 'CardsListAllCard',
 	render: function() {
@@ -33679,18 +33680,19 @@ var DeckCalculatorAllCards = React.createClass({displayName: 'DeckCalculatorAllC
 	mixins: [Reflux.ListenerMixin],
 	getInitialState: function() {
 		this.cards = [];
-		this.userCards = [];
+		//this.userCards = [];
 		return {cards: [], key:"null", name:"default", url:"defaultURL"};
   	},
   	componentWillMount: function() {
   		this.firebaseRefAllCards = new Firebase("https://sizzling-torch-8926.firebaseio.com/all_Cards/");
 
+      /*
   		if(this.state.user != null){
 			this.firebaseRefUserCards = new Firebase("https://sizzling-torch-8926.firebaseio.com/users/" + this.state.user.github.username +"/cards");
   		}
   		else{
   			this.firebaseRefUserCards = new Firebase("https://sizzling-torch-8926.firebaseio.com/users/guest/cards");
-  		}
+  		}*/
 
   		this.firebaseRefAllCards.on("child_added", function(dataSnapshot) {
   			var card = {
@@ -33707,16 +33709,16 @@ var DeckCalculatorAllCards = React.createClass({displayName: 'DeckCalculatorAllC
     		});
   		}.bind(this));
 
-  		this.listenTo(Actions.login, this.onUserChange);
-  		this.listenTo(Actions.logout, this.onUserChange);
-	},
+  		//this.listenTo(Actions.login, this.onUserChange);
+  		//this.listenTo(Actions.logout, this.onUserChange);
+	},/*
 	onUserChange: function(user){
 		this.setState({
       		user:user
     	});
     	console.log("user change");
     	this.updateUserPrefs();
-	},
+	},/*
 	updateUserPrefs: function(){
 		if(this.state.user != null){
 			this.firebaseRefUserCards = new Firebase("https://sizzling-torch-8926.firebaseio.com/users/" + this.state.user.github.username +"/cards");
@@ -33745,13 +33747,15 @@ var DeckCalculatorAllCards = React.createClass({displayName: 'DeckCalculatorAllC
       			userCards: this.userCards
     		});
   		}.bind(this));
-    },
+  },*/
 	componentWillUnmount: function() {
     	this.firebaseRefAllCards.off();
     	this.firebaseRefUserCards.off();
     },
-    handleOnAdd: function(card){
+  handleOnAdd: function(card){
     	
+      Actions.addUserCard(card);
+      /*
     	this.firebaseRefUserCards.push({
 	        name: card.name,
 	        url: card.url
@@ -33759,7 +33763,7 @@ var DeckCalculatorAllCards = React.createClass({displayName: 'DeckCalculatorAllC
 
   		this.setState({
       		cards: this.cards
-    	});
+    	});*/
     },
   	render: function() {
     return (
@@ -33782,61 +33786,26 @@ var CardsListUserCard = React.createClass({displayName: 'CardsListUserCard',
 });
 
 var DeckCalculatorUserCards = React.createClass({displayName: 'DeckCalculatorUserCards',
-	mixins: [Reflux.ListenerMixin],
+  mixins: [Reflux.connect(CardStore,"userCards")],
 	getInitialState: function() {
 		this.userCards = [];
 		this.defaultUserName = "Guest";
 		return {userCards: [], key:"null", name:"default", url:"defaultURL"};
   	},
-  	componentWillMount: function() {
-  		this.updateUserPrefs();
+  componentWillMount: function() {
+  		//this.updateUserPrefs();
 
-  		this.listenTo(Actions.login, this.onUserChange);
-  		this.listenTo(Actions.logout, this.onUserChange);
-	},
-	onUserChange: function(user){
-		this.setState({
-      		user:user
-    	});
-    	console.log("user change");
-    	this.updateUserPrefs();
+  		//this.listenTo(Actions.login, this.onUserChange);
+  		//this.listenTo(Actions.logout, this.onUserChange);
 	},
 	componentWillUnmount: function() {
     	this.firebaseRefUserCards.off();
-    },
-    updateUserPrefs: function(){
-		if(this.state.user != null){
-			console.log("Setting to github user");
-			this.firebaseRefUserCards = new Firebase("https://sizzling-torch-8926.firebaseio.com/users/" + this.state.user.github.username +"/cards");
-			this.setState({
-  				userName:this.state.user.github.username
-  			});
-  		}
-  		else{
-  			console.log("Setting to Guest user");
-  			this.firebaseRefUserCards = new Firebase("https://sizzling-torch-8926.firebaseio.com/users/guest/cards");
-  			this.setState({
-  				userName:this.defaultUserName
-  			});
-  		}
-  		this.userCards = [];
-  		this.firebaseRefUserCards.on("child_added", function(dataSnapshot) {
-  			var userCards = {
-	            key: dataSnapshot.name(),
-	            name: dataSnapshot.val().name,
-	            url: dataSnapshot.val().url
-        	};
+  },    
+  handleOnRemove: function(card){
 
-   			this.userCards.push(
-   				userCards
-   			);
-    		this.setState({
-      			userCards: this.userCards
-    		});
-  		}.bind(this));
-    },
-    handleOnRemove: function(card){
-    	
+      Actions.removeUserCard(card);
+
+    	/*
     	for (index = 0; index < this.userCards.length; ++index) {
     		if(this.userCards[index].key == card.key){
     			this.userCards.splice( index, 1);
@@ -33852,8 +33821,9 @@ var DeckCalculatorUserCards = React.createClass({displayName: 'DeckCalculatorUse
   		this.setState({
       		userCards: this.userCards
     	});
-    },
-  	render: function() {
+    },*/
+  },
+  render: function() {
     return (
       React.createElement("div", {className: "div"}, 
       	React.createElement("h3", null,  this.state.userName, " Cards"), 
@@ -33875,27 +33845,52 @@ var DeckBuilder = React.createClass({displayName: 'DeckBuilder',
 });
 
 module.exports = DeckBuilder;
-},{"./Actions":209,"firebase":1,"react":192,"reflux":204}],213:[function(require,module,exports){
+
+
+/*
+this.userCards = [];
+      this.firebaseRefUserCards.on("child_added", function(dataSnapshot) {
+        var userCards = {
+              key: dataSnapshot.name(),
+              name: dataSnapshot.val().name,
+              url: dataSnapshot.val().url
+          };
+
+        this.userCards.push(
+          userCards
+        );
+        this.setState({
+            userCards: this.userCards
+        });
+      }.bind(this));
+    }*/
+},{"./Actions":209,"./MyDeckStore":214,"firebase":1,"react":192,"reflux":204}],213:[function(require,module,exports){
 /** @jsx React.DOM */
 
 var React = require("react");
 var Firebase = require("firebase");
 var Actions = require("./Actions");
+var Reflux = require('reflux');
+var UserStore = require("./UserStore");
 
 var Login = React.createClass({displayName: 'Login',
+  mixins: [Reflux.connect(UserStore,"user")],
 	componentWillMount: function() {
   		this.ref = new Firebase("https://sizzling-torch-8926.firebaseio.com");
+      this.user = [];
   		var authData = this.ref.getAuth();
   		if(authData){
-			Actions.login(authData);
-			this.setState({
-  				authData: authData
-			});
-			window.authData = authData;
-		}	
+        console.log("mount");
+  			Actions.login(authData);
+        /*
+  			this.setState({
+    				authData: authData
+  			});
+  			window.authData = authData;*/
+		  }
 	},
-    handleOnLogin: function(build){
-    	console.log("OnLogin");    	
+  handleOnLogin: function(build){
+    console.log("OnLogin"); 	
 		this.ref.authWithOAuthPopup("github", function(error, authData) {
 			if(error){
 				console.log(error);
@@ -33904,6 +33899,7 @@ var Login = React.createClass({displayName: 'Login',
 				this.setState({
       				authData: authData
     			});
+          console.log("calling");
     			Actions.login(authData);
 			}			
 		}.bind(this), {remember: "sessionOnly"});
@@ -33915,7 +33911,7 @@ var Login = React.createClass({displayName: 'Login',
       		authData: null
     	});
 	},
-  	render: function() {
+  render: function() {
   	var authData = this.ref.getAuth();
   	if(!authData){
   		return(
@@ -33937,7 +33933,46 @@ var Login = React.createClass({displayName: 'Login',
 });
 
 module.exports = Login;
-},{"./Actions":209,"firebase":1,"react":192}],214:[function(require,module,exports){
+},{"./Actions":209,"./UserStore":218,"firebase":1,"react":192,"reflux":204}],214:[function(require,module,exports){
+/** @jsx React.DOM */
+
+var React = require("react");
+var Firebase = require("firebase");
+var Actions = require("./Actions");
+var Reflux = require('reflux');
+
+var cardRef = new Firebase("https://sizzling-torch-8926.firebaseio.com/users/guest/cards");
+
+var CardStore = Reflux.createStore({
+  init: function(){
+    cardRef.on("value",this.updateCard.bind(this));
+    console.log(this.listenTo);
+    this.listenTo(Actions.addUserCard,this.addCard.bind(this));
+    this.listenTo(Actions.removeUserCard,this.removeCard.bind(this));
+    console.log("fef");
+  },
+  addCard: function(card){
+    cardRef.push(card,function(err){
+      if (err){
+        console.log("did not add card");
+      } else {
+        console.log("did add card: " + card);
+      }
+    });
+  },
+  removeCard: function(card){
+    this.cardRef.child(card.key).remove();
+  },
+  updateCard: function(snapshot){
+    this.trigger((this.last = snapshot.val()||{}));
+  },
+  getDefaultData: function(){
+    return this.last || {};
+  }
+});
+
+module.exports = CardStore;
+},{"./Actions":209,"firebase":1,"react":192,"reflux":204}],215:[function(require,module,exports){
 /** @jsx React.DOM */
 
 var React = require("react");
@@ -33954,7 +33989,7 @@ var NotFound  = React.createClass({displayName: 'NotFound',
 }); 
 
 module.exports = NotFound;
-},{"react":192}],215:[function(require,module,exports){
+},{"react":192}],216:[function(require,module,exports){
 /** @jsx React.DOM */
 
 var React = require("react");
@@ -34009,7 +34044,7 @@ var Status = React.createClass({displayName: 'Status',
 });
 
 module.exports = Status;
-},{"react":192,"reflux":204}],216:[function(require,module,exports){
+},{"react":192,"reflux":204}],217:[function(require,module,exports){
 /** @jsx React.DOM */
 
 var React = require("react");
@@ -34017,7 +34052,33 @@ var React = require("react");
 var SUTFILE = require("./ReFlux.js");
 
 module.exports = SUTFILE;
-},{"./ReFlux.js":215,"react":192}],217:[function(require,module,exports){
+},{"./ReFlux.js":216,"react":192}],218:[function(require,module,exports){
+/** @jsx React.DOM */
+
+var React = require("react");
+var Firebase = require("firebase");
+var Actions = require("./Actions");
+var Reflux = require('reflux');
+
+var User = [];
+
+var UserStore = Reflux.createStore({
+  init: function(){
+    //this.listenTo(Actions.login,this.login.bind(this));
+    //this.listenTo(Actions.logout,this.logout.bind(this));
+  },
+  login: function(user){
+    console.log(user);
+    this.User = user;
+  },
+  logout: function(){
+    this.trigger((this.User = {}||{}));
+  },
+  getDefaultData: function(){
+    return this.User || {};
+  }
+});
+},{"./Actions":209,"firebase":1,"react":192,"reflux":204}],219:[function(require,module,exports){
 /** @jsx React.DOM */
 
 /** Other */
@@ -34072,7 +34133,7 @@ Router.run(routes, function (Handler) {
   React.render(React.createElement(Handler, null), document.getElementById("content"));
 });
 
-},{"./Builds.js":210,"./CardAdder.js":211,"./DeckBuilder.js":212,"./Login.js":213,"./NotFound.js":214,"./SUT.js":216,"react":192,"react-router":15}],218:[function(require,module,exports){
+},{"./Builds.js":210,"./CardAdder.js":211,"./DeckBuilder.js":212,"./Login.js":213,"./NotFound.js":215,"./SUT.js":217,"react":192,"react-router":15}],220:[function(require,module,exports){
 /** @jsx React.DOM */
 
 var App = require('./components/app'),
@@ -34081,4 +34142,4 @@ var App = require('./components/app'),
 React.renderComponent(
   App,
   document.getElementById('main'));
-},{"./components/app":217,"react":192}]},{},[218])
+},{"./components/app":219,"react":192}]},{},[220])

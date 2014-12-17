@@ -16,7 +16,6 @@ var BuildsListAllBuilds = React.createClass({
 });
 
 var BuildBuilder = React.createClass({
-	mixins: [Reflux.ListenerMixin],
 	getInitialState: function() {
 		this.builds = [];
 		return {builds: [], key:"null", author:"null", name:"default", cards:[]};
@@ -40,21 +39,21 @@ var BuildBuilder = React.createClass({
     		});
   		}.bind(this));
 
-  		this.listenTo(Actions.login, this.onUserChange);
-  		this.listenTo(Actions.logout, this.onUserChange);
+  		//this.listenTo(Actions.login, this.onUserChange);
+  		//this.listenTo(Actions.logout, this.onUserChange);
 	},
 	componentWillUnmount: function() {
     	this.firebaseRefAllBuilds.off();
     },
 	handleOnClick: function(build){
 		console.log("Clicked: " +build);
-	},
+	},/*
 	onUserChange: function(user){
 		this.setState({
       		user:user
     	});
-	},
-  	render: function() {
+	},*/
+  render: function() {
   	if(this.state.user != null){
   		return (
       		<div className='div'>

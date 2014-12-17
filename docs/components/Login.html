@@ -35,21 +35,27 @@
 <span class="hljs-keyword">var</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">"react"</span>);
 <span class="hljs-keyword">var</span> Firebase = <span class="hljs-built_in">require</span>(<span class="hljs-string">"firebase"</span>);
 <span class="hljs-keyword">var</span> Actions = <span class="hljs-built_in">require</span>(<span class="hljs-string">"./Actions"</span>);
+<span class="hljs-keyword">var</span> Reflux = <span class="hljs-built_in">require</span>(<span class="hljs-string">'reflux'</span>);
+<span class="hljs-keyword">var</span> UserStore = <span class="hljs-built_in">require</span>(<span class="hljs-string">"./UserStore"</span>);
 
 <span class="hljs-keyword">var</span> Login = React.createClass({
+  mixins: [Reflux.connect(UserStore,<span class="hljs-string">"user"</span>)],
 	componentWillMount: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
   		<span class="hljs-keyword">this</span>.ref = <span class="hljs-keyword">new</span> Firebase(<span class="hljs-string">"https://sizzling-torch-8926.firebaseio.com"</span>);
+      <span class="hljs-keyword">this</span>.user = [];
   		<span class="hljs-keyword">var</span> authData = <span class="hljs-keyword">this</span>.ref.getAuth();
   		<span class="hljs-keyword">if</span>(authData){
-			Actions.login(authData);
-			<span class="hljs-keyword">this</span>.setState({
-  				authData: authData
-			});
-			<span class="hljs-built_in">window</span>.authData = authData;
-		}	
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"mount"</span>);
+  			Actions.login(authData);
+        <span class="hljs-comment">/*
+  			this.setState({
+    				authData: authData
+  			});
+  			window.authData = authData;*/</span>
+		  }
 	},
-    handleOnLogin: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(build)</span></span>{
-    	<span class="hljs-built_in">console</span>.log(<span class="hljs-string">"OnLogin"</span>);    	
+  handleOnLogin: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(build)</span></span>{
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"OnLogin"</span>); 	
 		<span class="hljs-keyword">this</span>.ref.authWithOAuthPopup(<span class="hljs-string">"github"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(error, authData)</span> </span>{
 			<span class="hljs-keyword">if</span>(error){
 				<span class="hljs-built_in">console</span>.log(error);
@@ -58,6 +64,7 @@
 				<span class="hljs-keyword">this</span>.setState({
       				authData: authData
     			});
+          <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"calling"</span>);
     			Actions.login(authData);
 			}			
 		}.bind(<span class="hljs-keyword">this</span>), {remember: <span class="hljs-string">"sessionOnly"</span>});
@@ -69,7 +76,7 @@
       		authData: <span class="hljs-literal">null</span>
     	});
 	},
-  	render: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+  render: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
   	<span class="hljs-keyword">var</span> authData = <span class="hljs-keyword">this</span>.ref.getAuth();
   	<span class="hljs-keyword">if</span>(!authData){
   		<span class="hljs-keyword">return</span>(

@@ -38,9 +38,22 @@
 <span class="hljs-keyword">var</span> Actions = <span class="hljs-built_in">require</span>(<span class="hljs-string">"./Actions"</span>);
 <span class="hljs-keyword">var</span> Reflux = <span class="hljs-built_in">require</span>(<span class="hljs-string">'reflux'</span>);
 
-<span class="hljs-keyword">var</span> UpdateCards = React.createClass({
-	mixins: [Reflux.ListenerMixin],
-	getInitialState: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+<span class="hljs-keyword">var</span> UpdateCards = React.createClass({</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>mixins: [Reflux.ListenerMixin],</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>	getInitialState: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
     	<span class="hljs-keyword">this</span>.items = [];
     	<span class="hljs-keyword">this</span>.admins = [];
     	<span class="hljs-keyword">return</span> {items: [], name: <span class="hljs-string">""</span>, url:<span class="hljs-string">""</span>};
@@ -57,19 +70,31 @@
       		error: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(xhr, status, err)</span> </span>{
         		<span class="hljs-built_in">console</span>.error(<span class="hljs-keyword">this</span>.props.url, status, err.toString());
       		}.bind(<span class="hljs-keyword">this</span>)
-    	});
+    	});</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>this.listenTo(Actions.login, this.onUserChange);
+this.listenTo(Actions.logout, this.onUserChange);</p>
 
-    	<span class="hljs-keyword">this</span>.listenTo(Actions.login, <span class="hljs-keyword">this</span>.onUserChange);
-  		<span class="hljs-keyword">this</span>.listenTo(Actions.logout, <span class="hljs-keyword">this</span>.onUserChange);
-	},
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>	},
 	componentWillUnmount: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
     	<span class="hljs-keyword">this</span>.firebaseRef.off();
-    },
-    onUserChange: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(user)</span></span>{
-		<span class="hljs-keyword">this</span>.setState({
+    },<span class="hljs-comment">/*
+    onUserChange: function(user){
+		this.setState({
       		user:user
     	});
-	},
+	},*/</span>
 	handleSubmit: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(e)</span> </span>{
     	e.preventDefault();
     	<span class="hljs-keyword">if</span>( <span class="hljs-keyword">this</span>.state.name.toString().length &gt; <span class="hljs-number">0</span> &amp;&amp;

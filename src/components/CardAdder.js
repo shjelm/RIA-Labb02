@@ -7,7 +7,7 @@ var Actions = require("./Actions");
 var Reflux = require('reflux');
 
 var UpdateCards = React.createClass({
-	mixins: [Reflux.ListenerMixin],
+	//mixins: [Reflux.ListenerMixin],
 	getInitialState: function() {
     	this.items = [];
     	this.admins = [];
@@ -27,17 +27,17 @@ var UpdateCards = React.createClass({
       		}.bind(this)
     	});
 
-    	this.listenTo(Actions.login, this.onUserChange);
-  		this.listenTo(Actions.logout, this.onUserChange);
+    	//this.listenTo(Actions.login, this.onUserChange);
+  		//this.listenTo(Actions.logout, this.onUserChange);
 	},
 	componentWillUnmount: function() {
     	this.firebaseRef.off();
-    },
+    },/*
     onUserChange: function(user){
 		this.setState({
       		user:user
     	});
-	},
+	},*/
 	handleSubmit: function(e) {
     	e.preventDefault();
     	if( this.state.name.toString().length > 0 &&
